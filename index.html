@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>재시험 고사장 조회</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EAF0F6;
+    --surface: #FFFFFF;
+    --ink: #12233D;
+    --muted: #54657E;
+    --line: #C3D0E0;
+    --focus: #1F5FD1;
+    --hero-bg: #12233D;
+    --hero-ink: #FFD25A;
+    --hero-sub: #B9C7DB;
+    --err: #B3261E;
+    --err-bg: #FCEBEA;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0D1626; --surface: #15223A; --ink: #E8EEF7; --muted: #9AABC3;
+      --line: #2B3C58; --focus: #7FB0FF; --hero-bg: #FFD25A; --hero-ink: #12233D;
+      --hero-sub: #3B4A63; --err: #FF9B94; --err-bg: #3A1D1F;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0D1626; --surface: #15223A; --ink: #E8EEF7; --muted: #9AABC3;
+    --line: #2B3C58; --focus: #7FB0FF; --hero-bg: #FFD25A; --hero-ink: #12233D;
+    --hero-sub: #3B4A63; --err: #FF9B94; --err-bg: #3A1D1F;
+  }
+  html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+  *, *::before, *::after { box-sizing: inherit; }
+  body {
+    min-height: 100%;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { max-width: 440px; margin: 0 auto; padding: 40px 20px 56px; }
+  h1 { font-size: 1.75rem; font-weight: 900; letter-spacing: -0.02em; line-height: 1.2; margin: 0 0 8px; }
+  .sub { margin: 0 0 32px; color: var(--muted); font-size: 0.9375rem; }
+
+  label { display: block; font-weight: 700; font-size: 0.9375rem; margin-bottom: 8px; }
+  .field {
+    width: 100%;
+    background: var(--surface);
+    color: var(--ink);
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font: 700 2.25rem/1.2 "Noto Sans KR", system-ui, sans-serif;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.3em;
+    outline: none;
+    transition: border-color .15s;
+  }
+  .field::placeholder { font-size: 1.125rem; font-weight: 400; letter-spacing: 0; color: var(--muted); }
+  .field:focus-visible { border-color: var(--focus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 30%, transparent); }
+  .hint { min-height: 1.5em; margin: 8px 0 0; font-size: 0.875rem; color: var(--muted); }
+
+  #out { margin-top: 24px; }
+  .card { border-radius: 14px; overflow: hidden; background: var(--surface); border: 1px solid var(--line); animation: rise .28s ease-out; }
+  .room { background: var(--hero-bg); color: var(--hero-ink); padding: 22px 24px 20px; }
+  .room .cap { margin: 0; font-size: 0.875rem; font-weight: 500; color: var(--hero-sub); }
+  .room .name { display: flex; align-items: baseline; gap: 10px; margin: 2px 0 0; font-weight: 900; line-height: 1; }
+  .room .name .t { font-size: 1.5rem; letter-spacing: -0.01em; }
+  .room .name .n { font-size: 6rem; letter-spacing: -0.04em; }
+  .room .name .full { font-size: 2.5rem; }
+  dl { margin: 0; padding: 4px 24px; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 14px 0; }
+  .row + .row { border-top: 1px solid var(--line); }
+  dt { color: var(--muted); font-size: 0.9375rem; flex: none; }
+  dd { margin: 0; font-weight: 700; font-size: 1.125rem; text-align: right; overflow-wrap: anywhere; }
+
+  .err { background: var(--err-bg); color: var(--err); border-radius: 12px; padding: 16px 18px; font-weight: 500; animation: rise .28s ease-out; }
+  .err b { font-weight: 700; }
+
+  footer { margin-top: 40px; font-size: 0.8125rem; color: var(--muted); }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .card, .err { animation: none; } .field { transition: none; } }
+  @media (max-width: 360px) { .room .name .n { font-size: 5rem; } .field { font-size: 1.875rem; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>재시험 고사장 조회</h1>
+  <p class="sub">2026학년도 2학기 중간고사 인공지능 수학 재시험</p>
+
+  <label for="sid">학번</label>
+  <input id="sid" class="field" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="5"
+         autocomplete="off" autofocus placeholder="학번 5자리 입력" aria-describedby="hint">
+  <p id="hint" class="hint" aria-live="polite">숫자 5개를 입력하면 바로 결과가 나옵니다.</p>
+
+  <section id="out" aria-live="polite"></section>
+
+  <footer>고사장을 찾을 수 없으면 담당 선생님께 문의하세요.</footer>
+</main>
+
+<script>
+  // 학번 -> [개설과목, 성명, 고사장]
+  const DATA = {"20102":["인공지능 수학(D)","김도원","이동교실4"],"20108":["인공지능 수학(C)","백승원","이동교실2"],"20109":["인공지능 수학(E)","심민혁","이동교실5"],"20111":["인공지능 수학(A)","양지원","이동교실1"],"20112":["인공지능 수학(E)","어승원","이동교실5"],"20116":["인공지능 수학(A)","이유겸","이동교실1"],"20119":["인공지능 수학(C)","정기훈","이동교실2"],"20120":["인공지능 수학(A)","조현기","이동교실1"],"20121":["인공지능 수학(C)","채지민","이동교실2"],"20122":["인공지능 수학(A)","천지훈","이동교실1"],"20124":["인공지능 수학(D)","최호성","이동교실4"],"20125":["인공지능 수학(C)","홍도윤","이동교실2"],"20201":["인공지능 수학(A)","강지민","이동교실1"],"20205":["인공지능 수학(E)","김정훈","이동교실5"],"20206":["인공지능 수학(D)","김준원","이동교실4"],"20209":["인공지능 수학(D)","신윤성","이동교실4"],"20213":["인공지능 수학(D)","윤지훈","이동교실4"],"20214":["인공지능 수학(E)","이승민","이동교실5"],"20215":["인공지능 수학(C)","이인우","이동교실2"],"20220":["인공지능 수학(C)","이희성","이동교실2"],"20221":["인공지능 수학(D)","정현우","이동교실4"],"20225":["인공지능 수학(C)","한주현","이동교실2"],"20303":["인공지능 수학(C)","고준호","이동교실2"],"20304":["인공지능 수학(E)","김도령","이동교실5"],"20306":["인공지능 수학(D)","김승찬","이동교실4"],"20308":["인공지능 수학(A)","김준모","이동교실1"],"20310":["인공지능 수학(C)","박민규","이동교실2"],"20311":["인공지능 수학(E)","송성민","이동교실5"],"20314":["인공지능 수학(A)","이동건","이동교실1"],"20319":["인공지능 수학(E)","전형진","이동교실6"],"20321":["인공지능 수학(D)","정희건","이동교실4"],"20322":["인공지능 수학(C)","조윤우","이동교실2"],"20323":["인공지능 수학(A)","최윤우","이동교실1"],"20324":["인공지능 수학(E)","최진원","이동교실6"],"20325":["인공지능 수학(D)","황은우","이동교실4"],"20328":["인공지능 수학(C)","장준호","이동교실2"],"20404":["인공지능 수학(E)","김하언","이동교실6"],"20406":["인공지능 수학(E)","박지완","이동교실6"],"20409":["인공지능 수학(A)","송유빈","이동교실1"],"20411":["인공지능 수학(A)","신연호","이동교실1"],"20413":["인공지능 수학(A)","유한재","이동교실1"],"20416":["인공지능 수학(C)","이우형","이동교실2"],"20417":["인공지능 수학(C)","이주열","이동교실2"],"20421":["인공지능 수학(A)","조승준","이동교실1"],"20424":["인공지능 수학(D)","현승찬","이동교실4"],"20425":["인공지능 수학(A)","황보주현","이동교실1"],"20502":["인공지능 수학(D)","강지석","이동교실4"],"20503":["인공지능 수학(A)","구동혁","이동교실1"],"20507":["인공지능 수학(D)","문지성","이동교실4"],"20509":["인공지능 수학(C)","방지오","이동교실2"],"20510":["인공지능 수학(D)","서정윤","이동교실5"],"20511":["인공지능 수학(D)","송승주","이동교실5"],"20513":["인공지능 수학(E)","심우혁","이동교실6"],"20514":["인공지능 수학(E)","안건하","이동교실6"],"20519":["인공지능 수학(D)","이재민","이동교실5"],"20520":["인공지능 수학(A)","이정명","이동교실1"],"20521":["인공지능 수학(A)","정새한","이동교실1"],"20601":["인공지능 수학(E)","강예준","이동교실6"],"20607":["인공지능 수학(C)","박세훈","이동교실2"],"20611":["인공지능 수학(A)","서완","이동교실1"],"20614":["인공지능 수학(E)","어지웅","이동교실6"],"20615":["인공지능 수학(D)","유제석","이동교실5"],"20617":["인공지능 수학(C)","이기범","이동교실2"],"20618":["인공지능 수학(E)","이진규","이동교실6"],"20620":["인공지능 수학(E)","장석준","이동교실6"],"20623":["인공지능 수학(C)","정승우","이동교실2"],"20624":["인공지능 수학(A)","조민기","이동교실1"],"20625":["인공지능 수학(D)","황현민","이동교실5"],"20701":["인공지능 수학(A)","JIN XINGYU","이동교실1"],"20703":["인공지능 수학(C)","김민준","이동교실4"],"20704":["인공지능 수학(D)","김범준","이동교실5"],"20706":["인공지능 수학(C)","민동휘","이동교실4"],"20708":["인공지능 수학(A)","백예준","이동교실1"],"20710":["인공지능 수학(D)","송진욱","이동교실5"],"20712":["인공지능 수학(E)","윤준빈","이동교실6"],"20713":["인공지능 수학(C)","이선재","이동교실4"],"20714":["인공지능 수학(E)","이승규","이동교실6"],"20715":["인공지능 수학(D)","이유건","이동교실5"],"20718":["인공지능 수학(A)","임지산","이동교실1"],"20719":["인공지능 수학(A)","임태규","이동교실1"],"20720":["인공지능 수학(E)","임하율","이동교실6"],"20721":["인공지능 수학(E)","장진혁","이동교실6"],"20722":["인공지능 수학(D)","전가건","이동교실5"],"20801":["인공지능 수학(D)","고석민","이동교실5"],"20806":["인공지능 수학(C)","김치우","이동교실4"],"20807":["인공지능 수학(D)","박민선","이동교실5"],"20808":["인공지능 수학(D)","박준용","이동교실5"],"20812":["인공지능 수학(D)","신원준","이동교실5"],"20813":["인공지능 수학(C)","심우용","이동교실4"],"20814":["인공지능 수학(A)","양예준","이동교실1"],"20815":["인공지능 수학(A)","오준서","이동교실2"],"20816":["인공지능 수학(E)","유재민","이동교실6"],"20817":["인공지능 수학(E)","이도윤","이동교실6"],"20820":["인공지능 수학(A)","장하준","이동교실2"],"20821":["인공지능 수학(E)","정우진","이동교실6"],"20822":["인공지능 수학(D)","채서윤","이동교실5"],"20823":["인공지능 수학(C)","최주원","이동교실4"],"20824":["인공지능 수학(A)","최준혁","이동교실2"],"20902":["인공지능 수학(E)","김세찬","이동교실6"],"20904":["인공지능 수학(A)","김태완","이동교실2"],"20907":["인공지능 수학(D)","배해균","이동교실5"],"20908":["인공지능 수학(E)","서진교","이동교실6"],"20909":["인공지능 수학(D)","신윤재","이동교실5"],"20910":["인공지능 수학(E)","양완석","이동교실6"],"20911":["인공지능 수학(E)","양우성","이동교실6"],"20912":["인공지능 수학(A)","오서형","이동교실2"],"20913":["인공지능 수학(C)","원영준","이동교실4"],"20914":["인공지능 수학(C)","위태현","이동교실4"],"20915":["인공지능 수학(A)","이승민","이동교실2"],"20918":["인공지능 수학(D)","이지한","이동교실5"],"20919":["인공지능 수학(C)","이한빈","이동교실4"],"20921":["인공지능 수학(E)","장현준","이동교실6"],"20923":["인공지능 수학(E)","조은호","이동교실6"],"20924":["인공지능 수학(C)","최선우","이동교실4"],"20926":["인공지능 수학(C)","황인원","이동교실4"]};
+
+  const input = document.getElementById('sid');
+  const hint = document.getElementById('hint');
+  const out = document.getElementById('out');
+  const DEFAULT_HINT = '숫자 5개를 입력하면 바로 결과가 나옵니다.';
+
+  function esc(s) {
+    return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function roomMarkup(room) {
+    const m = room.match(/^(.*?)(\d+)$/);
+    if (!m) return '<p class="name" aria-label="' + esc(room) + '"><span class="full">' + esc(room) + '</span></p>';
+    return '<p class="name" aria-label="' + esc(room) + '"><span class="t" aria-hidden="true">' + esc(m[1]) +
+           '</span><span class="n" aria-hidden="true">' + esc(m[2]) + '</span></p>';
+  }
+
+  function render() {
+    const v = input.value;
+    if (v.length < 5) {
+      out.innerHTML = '';
+      hint.textContent = v.length === 0 ? DEFAULT_HINT : (5 - v.length) + '자리 더 입력하세요.';
+      return;
+    }
+    const hit = Object.prototype.hasOwnProperty.call(DATA, v) ? DATA[v] : null;
+    if (!hit) {
+      hint.textContent = '';
+      out.innerHTML = '<div class="err" role="alert"><b>' + esc(v) + '</b>에 해당하는 재시험 대상자가 없습니다. 학번을 다시 확인하세요.</div>';
+      return;
+    }
+    hint.textContent = '조회 완료';
+    out.innerHTML =
+      '<div class="card">' +
+        '<div class="room"><p class="cap">고사장</p>' + roomMarkup(hit[2]) + '</div>' +
+        '<dl>' +
+          '<div class="row"><dt>개설과목</dt><dd>' + esc(hit[0]) + '</dd></div>' +
+          '<div class="row"><dt>성명</dt><dd>' + esc(hit[1]) + '</dd></div>' +
+          '<div class="row"><dt>학번</dt><dd>' + esc(v) + '</dd></div>' +
+        '</dl>' +
+      '</div>';
+  }
+
+  input.addEventListener('input', () => {
+    const clean = input.value.replace(/\D/g, '').slice(0, 5);
+    if (clean !== input.value) input.value = clean;
+    render();
+  });
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); render(); input.blur(); } });
+</script>
+</body>
+</html>
